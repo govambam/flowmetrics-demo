@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { CheckSquare, Trash2, Plus, ListTodo, User } from 'lucide-react'
 import { Task, FilterType } from '@/types/task'
+import DemoControls from '@/components/DemoControls'
 
 const STORAGE_KEY = 'taskflow-tasks'
 const FILTER_KEY = 'taskflow-filter'
@@ -269,6 +270,9 @@ export default function TaskFlow() {
           </div>
         )}
       </main>
+
+      {/* Demo Controls - Hidden admin menu (Cmd+Shift+D to open) */}
+      <DemoControls />
     </div>
   )
 }

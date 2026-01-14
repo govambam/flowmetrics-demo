@@ -59,9 +59,14 @@ Or connect your GitHub repository to Vercel for automatic deployments.
 ```
 taskflow/
 ├── app/
+│   ├── api/demo/       # API routes for demo controls
+│   │   ├── create/route.ts
+│   │   └── reset/route.ts
 │   ├── globals.css     # Global styles and Tailwind
 │   ├── layout.tsx      # Root layout
 │   └── page.tsx        # Main TaskFlow component
+├── components/
+│   └── DemoControls.tsx # Hidden admin menu (Cmd+Shift+D)
 ├── types/
 │   └── task.ts         # TypeScript interfaces
 ├── scripts/
@@ -89,22 +94,23 @@ This repository includes automated scripts for demonstrating Macroscope's AI cod
 
 ### Quick Start
 
+**Option 1: From the UI (recommended for live demos)**
+
+Press `Cmd+Shift+D` (Mac) or `Ctrl+Shift+D` (Windows/Linux) to open the Demo Controls panel. Click the buttons to create or reset the demo.
+
+**Option 2: From the terminal**
+
 ```bash
-# 1. Create a demo branch with intentional bugs
+# 1. Create demo branch with bugs + PR (opens in browser)
 npm run create-demo
 
-# 2. Create a Pull Request
-gh pr create --base main --head demo-bugs \
-  --title "feat: Add task sorting and improved filtering" \
-  --body "This PR improves task management with better toggle, delete, and counting logic."
-
-# 3. When done, reset for the next demo
+# 2. When done, reset for the next demo
 npm run reset-demo
 ```
 
 ### What the Demo Does
 
-**`npm run create-demo`** creates a `demo-bugs` branch with 3 intentional bugs:
+**`npm run create-demo`** creates a `demo-bugs` branch with 3 intentional bugs, pushes to GitHub, and opens a PR in your browser:
 
 | Bug | Location | Issue | Should Be |
 |-----|----------|-------|-----------|
@@ -130,12 +136,11 @@ These are realistic bugs that Macroscope's code review should catch:
 
 ### Demo Flow
 
-1. **Setup:** Run `npm run create-demo`
-2. **Create PR:** Use the gh command shown in output
-3. **Demo:** Show Macroscope reviewing the PR
-4. **Discuss:** Walk through the bugs it found
-5. **Reset:** Run `npm run reset-demo`
-6. **Repeat:** Ready for next demo
+1. **Setup:** Run `npm run create-demo` (creates branch, pushes, opens PR in browser)
+2. **Demo:** Show Macroscope reviewing the PR
+3. **Discuss:** Walk through the bugs it found
+4. **Reset:** Run `npm run reset-demo`
+5. **Repeat:** Ready for next demo
 
 ## License
 

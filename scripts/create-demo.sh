@@ -17,9 +17,11 @@ if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
     exit 1
 fi
 
-# Check if gh CLI is available
+# Check if gh CLI is available (required for PR creation)
 if ! command -v gh &> /dev/null; then
-    echo -e "${YELLOW}Warning: GitHub CLI (gh) not installed. You'll need to create the PR manually.${NC}"
+    echo -e "${RED}Error: GitHub CLI (gh) is required but not installed.${NC}"
+    echo "Install it from: https://cli.github.com/"
+    exit 1
 fi
 
 # Check for uncommitted changes
@@ -100,14 +102,27 @@ echo "Pushing demo-bugs branch to origin..."
 if git push -u origin demo-bugs 2>/dev/null; then
     echo -e "${GREEN}✓ Branch pushed successfully${NC}"
 else
-    echo -e "${YELLOW}Note: Could not push to origin. You may need to set up the remote first.${NC}"
+    echo -e "${RED}Error: Could not push to origin. Please set up the remote first.${NC}"
+    exit 1
 fi
 
-# Print success message and next steps
+# Create Pull Request
+echo ""
+echo "Creating Pull Request..."
+gh pr create --base main --head demo-bugs \
+  --title "feat: Add task sorting and improved filtering" \
+  --body "This PR improves task management with better toggle, delete, and counting logic." \
+  --web
+
+# Print success message
 echo ""
 echo -e "${GREEN}════════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✓ Demo branch created successfully!${NC}"
+echo -e "${GREEN}✓ Demo setup complete!${NC}"
 echo -e "${GREEN}════════════════════════════════════════════════════════════════${NC}"
+echo ""
+echo "What was created:"
+echo "  • Branch 'demo-bugs' pushed to GitHub"
+echo "  • Pull Request created and opened in browser"
 echo ""
 echo "Bugs introduced:"
 echo "  1. Assignment instead of comparison in toggleTask (line ~92)"
@@ -119,14 +134,5 @@ echo ""
 echo "  3. Inverted logic in activeCount (line ~106)"
 echo "     task.completed  (should be !task.completed)"
 echo ""
-echo "Next steps:"
-echo -e "  ${YELLOW}1. Create a Pull Request:${NC}"
-echo "     gh pr create --base main --head demo-bugs \\"
-echo "       --title \"feat: Add task sorting and improved filtering\" \\"
-echo "       --body \"This PR improves task management with better toggle, delete, and counting logic.\""
-echo ""
-echo -e "  ${YELLOW}2. Or open GitHub and create PR manually${NC}"
-echo ""
-echo -e "  ${YELLOW}3. To reset the demo later:${NC}"
-echo "     npm run reset-demo"
+echo -e "To reset the demo later: ${YELLOW}npm run reset-demo${NC}"
 echo ""
