@@ -64,6 +64,9 @@ taskflow/
 │   └── page.tsx        # Main TaskFlow component
 ├── types/
 │   └── task.ts         # TypeScript interfaces
+├── scripts/
+│   ├── create-demo.sh  # Creates demo branch with bugs
+│   └── reset-demo.sh   # Resets demo environment
 ├── package.json
 ├── tailwind.config.ts
 └── tsconfig.json
@@ -79,6 +82,60 @@ taskflow/
 ## Data Persistence
 
 Tasks are stored in your browser's localStorage. They persist across page refreshes and browser sessions. To clear all data, open browser DevTools and clear localStorage.
+
+## Demo Workflow (Macroscope)
+
+This repository includes automated scripts for demonstrating Macroscope's AI code review capabilities.
+
+### Quick Start
+
+```bash
+# 1. Create a demo branch with intentional bugs
+npm run create-demo
+
+# 2. Create a Pull Request
+gh pr create --base main --head demo-bugs \
+  --title "feat: Add task sorting and improved filtering" \
+  --body "This PR improves task management with better toggle, delete, and counting logic."
+
+# 3. When done, reset for the next demo
+npm run reset-demo
+```
+
+### What the Demo Does
+
+**`npm run create-demo`** creates a `demo-bugs` branch with 3 intentional bugs:
+
+| Bug | Location | Issue | Should Be |
+|-----|----------|-------|-----------|
+| 1 | `toggleTask()` | `task.id = id` (assignment) | `task.id === id` (comparison) |
+| 2 | `deleteTask()` | `tasks.find()` (returns one) | `tasks.filter()` (returns array) |
+| 3 | `activeCount` | `task.completed` (inverted) | `!task.completed` |
+
+These are realistic bugs that Macroscope's code review should catch:
+- Assignment vs comparison (classic JavaScript gotcha)
+- Wrong array method (returns wrong type)
+- Inverted boolean logic (counts wrong items)
+
+**`npm run reset-demo`** cleans up everything:
+- Deletes local `demo-bugs` branch
+- Deletes remote `demo-bugs` branch
+- Closes any open PRs on that branch
+
+### Prerequisites
+
+- GitHub CLI (`gh`) installed and authenticated
+- Git repository with remote `origin` configured
+- Must be on `main` branch with no uncommitted changes
+
+### Demo Flow
+
+1. **Setup:** Run `npm run create-demo`
+2. **Create PR:** Use the gh command shown in output
+3. **Demo:** Show Macroscope reviewing the PR
+4. **Discuss:** Walk through the bugs it found
+5. **Reset:** Run `npm run reset-demo`
+6. **Repeat:** Ready for next demo
 
 ## License
 
