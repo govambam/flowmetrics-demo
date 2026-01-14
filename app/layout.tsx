@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'FlowMetrics - Project Management & Resource Allocation',
-  description: 'Project management and resource optimization platform for creative agencies and professional services firms.',
+  title: 'TaskFlow - Simple Task Management',
+  description: 'A clean, modern todo app for teams to track their work.',
 }
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="antialiased bg-slate-50">{children}</body>
+      <body className="antialiased min-h-screen bg-gray-50">{children}</body>
     </html>
   )
 }
