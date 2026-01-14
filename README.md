@@ -116,16 +116,14 @@ npm run reset-demo
 
 ### What the Demo Does
 
-**`npm run create-demo`** creates a `demo-bugs` branch with 3 intentional bugs, pushes to GitHub, and opens a PR in your browser:
+**`npm run create-demo`** creates a `demo-bugs` branch with 2 intentional bugs, pushes to GitHub, and opens a PR in your browser:
 
 | Bug | Location | Issue | Should Be |
 |-----|----------|-------|-----------|
-| 1 | `toggleTask()` | `task.id = id` (assignment) | `task.id === id` (comparison) |
-| 2 | `deleteTask()` | `tasks.find()` (returns one) | `tasks.filter()` (returns array) |
-| 3 | `activeCount` | `task.completed` (inverted) | `!task.completed` |
+| 1 | `deleteTask()` | `tasks.find()` (returns one) | `tasks.filter()` (returns array) |
+| 2 | `activeCount` | `task.completed` (inverted) | `!task.completed` |
 
 These are realistic bugs that Macroscope's code review should catch:
-- Assignment vs comparison (classic JavaScript gotcha)
 - Wrong array method (returns wrong type)
 - Inverted boolean logic (counts wrong items)
 

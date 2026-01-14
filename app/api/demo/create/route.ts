@@ -11,21 +11,14 @@ const FILE_PATH = 'app/page.tsx'
 function applyBugModifications(content: string): string {
   let modified = content
 
-  // Bug 1: Assignment instead of comparison in toggleTask
-  // Change: task.id === id → task.id = id
-  modified = modified.replace(
-    /task\.id === id \? \{ \.\.\.task, completed: !task\.completed \}/g,
-    'task.id = id ? { ...task, completed: !task.completed }'
-  )
-
-  // Bug 2: Wrong array method in deleteTask
+  // Bug 1: Wrong array method in deleteTask
   // Change: tasks.filter(task => task.id !== id) → tasks.find(task => task.id !== id)
   modified = modified.replace(
     /setTasks\(tasks\.filter\(task => task\.id !== id\)\)/g,
     'setTasks(tasks.find(task => task.id !== id))'
   )
 
-  // Bug 3: Inverted logic in activeCount
+  // Bug 2: Inverted logic in activeCount
   // Change: !task.completed → task.completed
   modified = modified.replace(
     /const activeCount = tasks\.filter\(task => !task\.completed\)\.length/g,
@@ -125,24 +118,21 @@ export async function POST() {
     // Step 5: Apply bug modifications
     log('')
     log('Introducing bugs...')
-    log('  Bug 1: Assignment instead of comparison in toggleTask')
-    log('  Bug 2: Wrong array method in deleteTask')
-    log('  Bug 3: Inverted logic in activeCount')
+    log('  Bug 1: Wrong array method in deleteTask')
+    log('  Bug 2: Inverted logic in activeCount')
     const modifiedContent = applyBugModifications(originalContent)
 
     // Verify bugs were applied
-    const bug1Applied = modifiedContent.includes('task.id = id ?')
-    const bug2Applied = modifiedContent.includes('tasks.find(task => task.id !== id)')
-    const bug3Applied = modifiedContent.includes('tasks.filter(task => task.completed).length')
+    const bug1Applied = modifiedContent.includes('tasks.find(task => task.id !== id)')
+    const bug2Applied = modifiedContent.includes('tasks.filter(task => task.completed).length')
 
-    if (!bug1Applied || !bug2Applied || !bug3Applied) {
+    if (!bug1Applied || !bug2Applied) {
       log('')
       log('⚠️ Warning: Some bugs may not have been applied')
       log(`  Bug 1 applied: ${bug1Applied}`)
       log(`  Bug 2 applied: ${bug2Applied}`)
-      log(`  Bug 3 applied: ${bug3Applied}`)
     } else {
-      log('✓ All 3 bugs successfully introduced')
+      log('✓ All 2 bugs successfully introduced')
     }
 
     // Step 6: Commit the modified file to demo-bugs branch
@@ -154,7 +144,6 @@ export async function POST() {
       path: FILE_PATH,
       message: `feat: Add task sorting and improved filtering
 
-- Updated toggle task logic for better performance
 - Optimized delete task function
 - Improved active task counting`,
       content: Buffer.from(modifiedContent).toString('base64'),
@@ -170,7 +159,7 @@ export async function POST() {
       owner: OWNER,
       repo: REPO,
       title: 'feat: Add task sorting and improved filtering',
-      body: 'This PR improves task management with better toggle, delete, and counting logic.',
+      body: 'This PR improves task management with better delete and counting logic.',
       head: DEMO_BRANCH,
       base: BASE_BRANCH,
     })
@@ -183,13 +172,10 @@ export async function POST() {
     log(`PR URL: ${pr.html_url}`)
     log('')
     log('Bugs introduced:')
-    log('  1. Assignment instead of comparison in toggleTask')
-    log('     task.id = id  (should be ===)')
-    log('')
-    log('  2. Wrong array method in deleteTask')
+    log('  1. Wrong array method in deleteTask')
     log('     tasks.find()  (should be .filter())')
     log('')
-    log('  3. Inverted logic in activeCount')
+    log('  2. Inverted logic in activeCount')
     log('     task.completed  (should be !task.completed)')
 
     return NextResponse.json({

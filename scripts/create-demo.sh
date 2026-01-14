@@ -53,30 +53,24 @@ fi
 echo "Creating demo-bugs branch..."
 git checkout -b demo-bugs
 
-# Introduce Bug 1: Assignment instead of comparison in toggleTask
-# Change: task.id === id  →  task.id = id
-echo "Introducing Bug 1: Assignment instead of comparison in toggleTask..."
-sed -i '' 's/task\.id === id ? { \.\.\.task, completed: !task\.completed }/task.id = id ? { ...task, completed: !task.completed }/' app/page.tsx
-
-# Introduce Bug 2: Wrong array method in deleteTask
+# Introduce Bug 1: Wrong array method in deleteTask
 # Change: tasks.filter(task => task.id !== id)  →  tasks.find(task => task.id !== id)
-echo "Introducing Bug 2: Wrong array method in deleteTask..."
+echo "Introducing Bug 1: Wrong array method in deleteTask..."
 sed -i '' 's/setTasks(tasks\.filter(task => task\.id !== id))/setTasks(tasks.find(task => task.id !== id))/' app/page.tsx
 
-# Introduce Bug 3: Inverted logic in activeCount
+# Introduce Bug 2: Inverted logic in activeCount
 # Change: !task.completed  →  task.completed
-echo "Introducing Bug 3: Inverted logic in activeCount..."
+echo "Introducing Bug 2: Inverted logic in activeCount..."
 sed -i '' 's/const activeCount = tasks\.filter(task => !task\.completed)\.length/const activeCount = tasks.filter(task => task.completed).length/' app/page.tsx
 
 # Verify bugs were introduced
 echo ""
 echo "Verifying bugs were introduced..."
 
-BUG1=$(grep -c "task.id = id" app/page.tsx || true)
-BUG2=$(grep -c "tasks.find(task => task.id !== id)" app/page.tsx || true)
-BUG3=$(grep -c "tasks.filter(task => task.completed).length" app/page.tsx || true)
+BUG1=$(grep -c "tasks.find(task => task.id !== id)" app/page.tsx || true)
+BUG2=$(grep -c "tasks.filter(task => task.completed).length" app/page.tsx || true)
 
-if [ "$BUG1" -eq 0 ] || [ "$BUG2" -eq 0 ] || [ "$BUG3" -eq 0 ]; then
+if [ "$BUG1" -eq 0 ] || [ "$BUG2" -eq 0 ]; then
     echo -e "${RED}Error: Failed to introduce all bugs. Rolling back...${NC}"
     git checkout -- app/page.tsx
     git checkout main
@@ -84,7 +78,7 @@ if [ "$BUG1" -eq 0 ] || [ "$BUG2" -eq 0 ] || [ "$BUG3" -eq 0 ]; then
     exit 1
 fi
 
-echo -e "${GREEN}✓ All 3 bugs successfully introduced${NC}"
+echo -e "${GREEN}✓ All 2 bugs successfully introduced${NC}"
 
 # Stage and commit changes
 echo ""
@@ -92,7 +86,6 @@ echo "Committing changes..."
 git add app/page.tsx
 git commit -m "feat: Add task sorting and improved filtering
 
-- Updated toggle task logic for better performance
 - Optimized delete task function
 - Improved active task counting"
 
@@ -111,7 +104,7 @@ echo ""
 echo "Creating Pull Request..."
 gh pr create --base main --head demo-bugs \
   --title "feat: Add task sorting and improved filtering" \
-  --body "This PR improves task management with better toggle, delete, and counting logic." \
+  --body "This PR improves task management with better delete and counting logic." \
   --web
 
 # Print success message
@@ -125,13 +118,10 @@ echo "  • Branch 'demo-bugs' pushed to GitHub"
 echo "  • Pull Request created and opened in browser"
 echo ""
 echo "Bugs introduced:"
-echo "  1. Assignment instead of comparison in toggleTask (line ~92)"
-echo "     task.id = id  (should be ===)"
-echo ""
-echo "  2. Wrong array method in deleteTask (line ~97)"
+echo "  1. Wrong array method in deleteTask (line ~97)"
 echo "     tasks.find()  (should be .filter())"
 echo ""
-echo "  3. Inverted logic in activeCount (line ~106)"
+echo "  2. Inverted logic in activeCount (line ~106)"
 echo "     task.completed  (should be !task.completed)"
 echo ""
 echo -e "To reset the demo later: ${YELLOW}npm run reset-demo${NC}"
