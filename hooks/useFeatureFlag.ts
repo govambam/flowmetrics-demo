@@ -1,7 +1,7 @@
 'use client'
 
 import { useFeatureIsOn } from '@growthbook/growthbook-react'
-import { AppFeatures, defaultFeatures } from '@/lib/growthbook'
+import { AppFeatures } from '@/lib/growthbook'
 
 /**
  * Hook to check if a feature flag is enabled
@@ -10,10 +10,8 @@ import { AppFeatures, defaultFeatures } from '@/lib/growthbook'
 export function useFeatureFlag<K extends keyof AppFeatures>(
   flagKey: K
 ): boolean {
-  const isOn = useFeatureIsOn(flagKey as string)
-
-  // Return the GrowthBook value, falling back to default if not available
-  return isOn ?? defaultFeatures[flagKey]
+  // useFeatureIsOn returns false by default if flag is not set
+  return useFeatureIsOn(flagKey as string)
 }
 
 /**
