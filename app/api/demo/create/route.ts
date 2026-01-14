@@ -11,11 +11,11 @@ const FILE_PATH = 'app/page.tsx'
 function applyBugModifications(content: string): string {
   let modified = content
 
-  // Bug 1: Wrong array method in deleteTask
-  // Change: tasks.filter(task => task.id !== id) → tasks.find(task => task.id !== id)
+  // Bug 1: Loose equality in deleteTask filter
+  // Change: task.id !== id → task.id != id (loose equality instead of strict)
   modified = modified.replace(
     /setTasks\(tasks\.filter\(task => task\.id !== id\)\)/g,
-    'setTasks(tasks.find(task => task.id !== id))'
+    'setTasks(tasks.filter(task => task.id != id))'
   )
 
   // Bug 2: Inverted logic in activeCount
@@ -118,12 +118,12 @@ export async function POST() {
     // Step 5: Apply bug modifications
     log('')
     log('Introducing bugs...')
-    log('  Bug 1: Wrong array method in deleteTask')
+    log('  Bug 1: Loose equality in deleteTask (!== to !=)')
     log('  Bug 2: Inverted logic in activeCount')
     const modifiedContent = applyBugModifications(originalContent)
 
     // Verify bugs were applied
-    const bug1Applied = modifiedContent.includes('tasks.find(task => task.id !== id)')
+    const bug1Applied = modifiedContent.includes('task.id != id)')
     const bug2Applied = modifiedContent.includes('tasks.filter(task => task.completed).length')
 
     if (!bug1Applied || !bug2Applied) {
@@ -172,8 +172,8 @@ export async function POST() {
     log(`PR URL: ${pr.html_url}`)
     log('')
     log('Bugs introduced:')
-    log('  1. Wrong array method in deleteTask')
-    log('     tasks.find()  (should be .filter())')
+    log('  1. Loose equality in deleteTask')
+    log('     task.id != id  (should be !==)')
     log('')
     log('  2. Inverted logic in activeCount')
     log('     task.completed  (should be !task.completed)')

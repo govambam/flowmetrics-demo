@@ -53,10 +53,10 @@ fi
 echo "Creating demo-bugs branch..."
 git checkout -b demo-bugs
 
-# Introduce Bug 1: Wrong array method in deleteTask
-# Change: tasks.filter(task => task.id !== id)  →  tasks.find(task => task.id !== id)
-echo "Introducing Bug 1: Wrong array method in deleteTask..."
-sed -i '' 's/setTasks(tasks\.filter(task => task\.id !== id))/setTasks(tasks.find(task => task.id !== id))/' app/page.tsx
+# Introduce Bug 1: Loose equality in deleteTask filter
+# Change: task.id !== id  →  task.id != id (loose equality instead of strict)
+echo "Introducing Bug 1: Loose equality in deleteTask..."
+sed -i '' 's/task\.id !== id/task.id != id/' app/page.tsx
 
 # Introduce Bug 2: Inverted logic in activeCount
 # Change: !task.completed  →  task.completed
@@ -67,7 +67,7 @@ sed -i '' 's/const activeCount = tasks\.filter(task => !task\.completed)\.length
 echo ""
 echo "Verifying bugs were introduced..."
 
-BUG1=$(grep -c "tasks.find(task => task.id !== id)" app/page.tsx || true)
+BUG1=$(grep -c "task.id != id" app/page.tsx || true)
 BUG2=$(grep -c "tasks.filter(task => task.completed).length" app/page.tsx || true)
 
 if [ "$BUG1" -eq 0 ] || [ "$BUG2" -eq 0 ]; then
@@ -118,8 +118,8 @@ echo "  • Branch 'demo-bugs' pushed to GitHub"
 echo "  • Pull Request created and opened in browser"
 echo ""
 echo "Bugs introduced:"
-echo "  1. Wrong array method in deleteTask (line ~97)"
-echo "     tasks.find()  (should be .filter())"
+echo "  1. Loose equality in deleteTask (line ~97)"
+echo "     task.id != id  (should be !==)"
 echo ""
 echo "  2. Inverted logic in activeCount (line ~106)"
 echo "     task.completed  (should be !task.completed)"

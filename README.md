@@ -120,11 +120,11 @@ npm run reset-demo
 
 | Bug | Location | Issue | Should Be |
 |-----|----------|-------|-----------|
-| 1 | `deleteTask()` | `tasks.find()` (returns one) | `tasks.filter()` (returns array) |
+| 1 | `deleteTask()` | `task.id != id` (loose equality) | `task.id !== id` (strict equality) |
 | 2 | `activeCount` | `task.completed` (inverted) | `!task.completed` |
 
 These are realistic bugs that Macroscope's code review should catch:
-- Wrong array method (returns wrong type)
+- Loose vs strict equality (code quality issue)
 - Inverted boolean logic (counts wrong items)
 
 **`npm run reset-demo`** cleans up everything:
