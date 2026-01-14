@@ -1,43 +1,108 @@
 import { NextResponse } from 'next/server'
-import { exec } from 'child_process'
-import { promisify } from 'util'
+import { Octokit } from '@octokit/rest'
 
-const execAsync = promisify(exec)
+const OWNER = 'govambam'
+const REPO = 'flowmetrics-demo'
+const DEMO_BRANCH = 'demo-bugs'
 
 export async function POST() {
-  // Note: Access control is handled by GrowthBook feature flag on the client side
-  // The UI won't render the controls unless demo-controls-enabled flag is true
+  const logs: string[] = []
+  const log = (message: string) => {
+    console.log(message)
+    logs.push(message)
+  }
 
   try {
-    const { stdout, stderr } = await execAsync('bash scripts/reset-demo.sh', {
-      cwd: process.cwd(),
-      timeout: 30000, // 30 second timeout
-      env: { ...process.env, FORCE_COLOR: '0' }, // Disable color codes for cleaner output
+    // Check for GitHub token
+    const token = process.env.GITHUB_TOKEN
+    if (!token) {
+      return NextResponse.json({
+        success: false,
+        output: 'Error: GITHUB_TOKEN environment variable is not set',
+        error: 'Missing GitHub token',
+      })
+    }
+
+    log('🧹 Resetting demo environment...')
+    log('')
+
+    const octokit = new Octokit({ auth: token })
+
+    // Step 1: Find and close any open PRs from demo-bugs branch
+    log('Looking for open PRs from demo-bugs branch...')
+    const { data: openPRs } = await octokit.pulls.list({
+      owner: OWNER,
+      repo: REPO,
+      state: 'open',
+      head: `${OWNER}:${DEMO_BRANCH}`,
     })
 
-    const output = stdout + (stderr ? `\n${stderr}` : '')
+    if (openPRs.length > 0) {
+      log(`Found ${openPRs.length} open PR(s) to close`)
+      for (const pr of openPRs) {
+        log(`  Closing PR #${pr.number}: ${pr.title}`)
+        await octokit.pulls.update({
+          owner: OWNER,
+          repo: REPO,
+          pull_number: pr.number,
+          state: 'closed',
+        })
+        log(`  ✓ PR #${pr.number} closed`)
+      }
+    } else {
+      log('No open PRs found from demo-bugs branch')
+    }
 
-    // Check if the output contains success indicators
-    const success = output.includes('Demo reset complete')
+    // Step 2: Delete the demo-bugs branch if it exists
+    log('')
+    log('Checking for demo-bugs branch...')
+    try {
+      await octokit.git.getRef({
+        owner: OWNER,
+        repo: REPO,
+        ref: `heads/${DEMO_BRANCH}`,
+      })
+      // Branch exists, delete it
+      log('Deleting demo-bugs branch...')
+      await octokit.git.deleteRef({
+        owner: OWNER,
+        repo: REPO,
+        ref: `heads/${DEMO_BRANCH}`,
+      })
+      log('✓ Branch deleted')
+    } catch (error: any) {
+      if (error.status === 404) {
+        log('No demo-bugs branch found (already deleted or never created)')
+      } else {
+        throw error
+      }
+    }
+
+    log('')
+    log('════════════════════════════════════════════════════════════════')
+    log('✓ Demo reset complete!')
+    log('════════════════════════════════════════════════════════════════')
+    log('')
+    log('Ready to create a fresh demo PR.')
 
     return NextResponse.json({
-      success,
-      output: cleanOutput(output),
+      success: true,
+      output: logs.join('\n'),
     })
   } catch (error: any) {
-    const output = error.stdout || error.stderr || error.message
+    log('')
+    log(`❌ Error: ${error.message}`)
+
+    // Add more detailed error info for debugging
+    if (error.response) {
+      log(`Status: ${error.response.status}`)
+      log(`Details: ${JSON.stringify(error.response.data, null, 2)}`)
+    }
+
     return NextResponse.json({
       success: false,
-      output: cleanOutput(output),
+      output: logs.join('\n'),
       error: error.message,
     })
   }
-}
-
-// Remove ANSI color codes and clean up output
-function cleanOutput(text: string): string {
-  return text
-    .replace(/\x1b\[[0-9;]*m/g, '') // Remove ANSI color codes
-    .replace(/\[0m|\[31m|\[32m|\[33m|\[1;33m/g, '') // Remove remaining color codes
-    .trim()
 }
