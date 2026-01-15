@@ -3,7 +3,7 @@ import './globals.css'
 import GrowthBookProvider from '@/components/GrowthBookProvider'
 
 export const metadata: Metadata = {
-  title: 'TaskFlow - Simple Task Management',
+  title: 'DEMO - TASKFLOW',
   description: 'A clean, modern todo app for teams to track their work.',
 }
 
