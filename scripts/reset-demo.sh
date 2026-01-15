@@ -26,19 +26,25 @@ if [ "$CURRENT_BRANCH" = "demo-bugs" ]; then
     git checkout main
 fi
 
-# Close any open PRs for demo-bugs branch using gh CLI
+# Close ALL open PRs in the repo using gh CLI
 if command -v gh &> /dev/null; then
-    echo "Checking for open PRs on demo-bugs branch..."
+    echo "Checking for all open PRs..."
 
-    # Get PR number if exists
-    PR_NUMBER=$(gh pr list --head demo-bugs --json number --jq '.[0].number' 2>/dev/null || true)
+    # Get all open PR numbers
+    PR_NUMBERS=$(gh pr list --state open --json number --jq '.[].number' 2>/dev/null || true)
 
-    if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
-        echo "Closing PR #$PR_NUMBER..."
-        gh pr close "$PR_NUMBER" --comment "Closing for demo reset" 2>/dev/null || echo -e "${YELLOW}Note: Could not close PR${NC}"
-        echo -e "${GREEN}✓ PR #$PR_NUMBER closed${NC}"
+    if [ -n "$PR_NUMBERS" ]; then
+        PR_COUNT=$(echo "$PR_NUMBERS" | wc -l | tr -d ' ')
+        echo "Found $PR_COUNT open PR(s) to close"
+        echo "$PR_NUMBERS" | while read -r PR_NUMBER; do
+            if [ -n "$PR_NUMBER" ]; then
+                echo "  Closing PR #$PR_NUMBER..."
+                gh pr close "$PR_NUMBER" --comment "Closing for demo reset" 2>/dev/null || echo -e "${YELLOW}  Note: Could not close PR #$PR_NUMBER${NC}"
+                echo -e "  ${GREEN}✓ PR #$PR_NUMBER closed${NC}"
+            fi
+        done
     else
-        echo "No open PRs found for demo-bugs branch"
+        echo "No open PRs found"
     fi
 else
     echo -e "${YELLOW}Note: GitHub CLI (gh) not installed. Skipping PR cleanup.${NC}"

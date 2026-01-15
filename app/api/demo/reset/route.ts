@@ -28,13 +28,12 @@ export async function POST() {
 
     const octokit = new Octokit({ auth: token })
 
-    // Step 1: Find and close any open PRs from demo-bugs branch
-    log('Looking for open PRs from demo-bugs branch...')
+    // Step 1: Find and close ALL open PRs in the repo
+    log('Looking for all open PRs...')
     const { data: openPRs } = await octokit.pulls.list({
       owner: OWNER,
       repo: REPO,
       state: 'open',
-      head: `${OWNER}:${DEMO_BRANCH}`,
     })
 
     if (openPRs.length > 0) {
@@ -50,7 +49,7 @@ export async function POST() {
         log(`  ✓ PR #${pr.number} closed`)
       }
     } else {
-      log('No open PRs found from demo-bugs branch')
+      log('No open PRs found')
     }
 
     // Step 2: Delete the demo-bugs branch if it exists
