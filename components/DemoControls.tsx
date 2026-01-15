@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { Settings, X, Play, RotateCcw, CheckCircle, XCircle, Loader2, Terminal } from 'lucide-react'
-import { useDemoControlsEnabled } from '@/hooks/useFeatureFlag'
 
 type ScriptStatus = 'idle' | 'running' | 'success' | 'error'
 
@@ -12,7 +11,6 @@ interface ScriptResult {
 }
 
 export default function DemoControls() {
-  const demoControlsEnabled = useDemoControlsEnabled()
   const [isVisible, setIsVisible] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const [createStatus, setCreateStatus] = useState<ScriptStatus>('idle')
@@ -21,13 +19,7 @@ export default function DemoControls() {
   const [lastAction, setLastAction] = useState<string>('')
 
   // Listen for keyboard shortcut: Cmd/Ctrl + Shift + D
-  // Only active when feature flag is enabled
   useEffect(() => {
-    // Don't add listener if feature flag is disabled
-    if (!demoControlsEnabled) {
-      return
-    }
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'd') {
         e.preventDefault()
@@ -42,7 +34,7 @@ export default function DemoControls() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, demoControlsEnabled])
+  }, [isOpen])
 
   const runScript = useCallback(async (action: 'create' | 'reset') => {
     const setStatus = action === 'create' ? setCreateStatus : setResetStatus
@@ -66,11 +58,6 @@ export default function DemoControls() {
   }, [])
 
   const isRunning = createStatus === 'running' || resetStatus === 'running'
-
-  // Don't render anything if feature flag is disabled
-  if (!demoControlsEnabled) {
-    return null
-  }
 
   // Don't render until user triggers the shortcut
   if (!isVisible) {
@@ -217,13 +204,6 @@ export default function DemoControls() {
                   </p>
                 </div>
               )}
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
-              <p className="text-xs text-gray-500 text-center">
-                Controlled by GrowthBook feature flag: <code className="px-1 py-0.5 bg-gray-200 rounded">demo-controls-enabled</code>
-              </p>
             </div>
           </div>
         </div>

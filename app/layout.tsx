@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import GrowthBookProvider from '@/components/GrowthBookProvider'
 
 export const metadata: Metadata = {
   title: 'TaskFlow - Simple Task Management',
@@ -15,9 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased min-h-screen bg-gray-50">
-        <GrowthBookProvider>
-          {children}
-        </GrowthBookProvider>
+        {children}
       </body>
     </html>
   )

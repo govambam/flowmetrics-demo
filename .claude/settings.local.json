@@ -5,7 +5,8 @@
       "Bash(npm run build:*)",
       "Bash(chmod:*)",
       "Bash(timeout 10 npm run dev:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(npm uninstall:*)"
     ]
   }
 }
