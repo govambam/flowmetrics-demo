@@ -9,6 +9,7 @@ const LINEAR_PROJECT_NAME = 'Web-Demo'
 const USER_REPOS: Record<string, { owner: string; repo: string }> = {
   'Ryan': { owner: 'rkp2525', repo: 'taskflow-demo' },
   'Ivan': { owner: 'govambam', repo: 'taskflow-demo' },
+  'James': { owner: 'Hiztizz', repo: 'taskflow-demo' },
 }
 
 // Get repository config from userName

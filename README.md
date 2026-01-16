@@ -57,6 +57,7 @@ The first time you open the demo controls, **select your name from the dropdown*
 
 - **Ryan** → github.com/rkp2525/taskflow-demo
 - **Ivan** → github.com/govambam/taskflow-demo
+- **James** → github.com/Hiztizz/taskflow-demo
 
 Your selection is saved in your browser, so you only need to do this once per device.
 

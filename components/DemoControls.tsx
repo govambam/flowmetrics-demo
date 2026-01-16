@@ -10,7 +10,7 @@ interface ScriptResult {
   error?: string
 }
 
-const DEMO_USERS = ['Ryan', 'Ivan'] as const
+const DEMO_USERS = ['Ryan', 'Ivan', 'James'] as const
 type DemoUser = typeof DEMO_USERS[number]
 
 const STORAGE_KEY = 'demo-user-name'
